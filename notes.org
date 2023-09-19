@@ -62,7 +62,8 @@ Generic =DimensionedValue= with different =Mul + Add + ..= implementations
 takes =f64=, =Vec<f64>=
 #+end_quote
 Turned out to be: generic types (=struct<T>=) with type specific behaviour in traits.
-*** TODO Add dimensionless values
+*** DONE Add dimensionless values
+CLOSED: [2023-09-07 Thu 14:19]
   - [ ] parse dimensionless values without units (scalars/scalar vecs without units) as values with power 0 and units None
 *** TODO Unit syntax sugar
 `m^1` should be allowed as `m`
