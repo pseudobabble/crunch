@@ -10,3 +10,5 @@ c = (a + b);
 #+end_src
 
 The input is parsed and then evaluated.
+** How to run it
+Currently =cargo run= will target the =test.cr= file
