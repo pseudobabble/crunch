@@ -42,7 +42,7 @@ impl Interpreter for Memory {
                     _ => panic!("Variable should be of type AstNode::Variable"),
                 };
 
-                let united_value = match variable {
+                let unitted_value = match variable {
                     AstNode::Variable {
                         name: _name,
                         expr: expression,
@@ -53,9 +53,9 @@ impl Interpreter for Memory {
                 println!(
                     "\nStoring result {:#?} = {:#?}",
                     name.clone(),
-                    united_value.clone()
+                    unitted_value.clone()
                 );
-                self.memory.insert(name, united_value);
+                self.memory.insert(name, unitted_value);
                 println!("=================================\n\n");
             }
         }

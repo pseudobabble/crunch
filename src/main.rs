@@ -28,7 +28,7 @@ use parser::*;
 /// TODO: variables need units, otherwise can do valid but unintended calculations
 
 fn main() -> () {
-    let mut test_file = File::open("./test.r2").unwrap();
+    let mut test_file = File::open("./test.cr").unwrap();
     let mut input_file_contents = String::new();
     test_file.read_to_string(&mut input_file_contents).unwrap();
 
