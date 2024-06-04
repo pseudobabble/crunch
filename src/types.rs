@@ -10,7 +10,7 @@ pub enum BinaryOperation {
     Divide,
 }
 
-#[derive(PartialEq, Debug, Clone, Copy)]
+#[derive(PartialEq, Eq, Hash, Debug, Clone)]
 pub enum UnitIdentity {
     None,
     Second,
@@ -23,10 +23,25 @@ pub enum UnitIdentity {
     GBP,
 }
 
-#[derive(Debug, Clone)]
+impl UnitIdentity {
+    fn get_dimension(self) {
+        match self {
+            UnitIdentity::None => DimensionIdentity::None,
+            UnitIdentity::Second => DimensionIdentity::Time,
+            UnitIdentity::Minute => DimensionIdentity::Time,
+            UnitIdentity::Hour => DimensionIdentity::Time,
+            UnitIdentity::Day => DimensionIdentity::Time,
+            UnitIdentity::Meter => DimensionIdentity::Length,
+            UnitIdentity::Kilometer => DimensionIdentity::Time,
+            UnitIdentity::USD => DimensionIdentity::Time,
+            UnitIdentity::GBP => DimensionIdentity::Time,
+        }
+    }
+}
+
+#[derive(PartialEq, Eq, Debug, Clone)]
 pub struct Unit {
     unit: HashMap<UnitIdentity, i64>,
-    exponent: i64,
     dimension: Dimension,
 }
 
@@ -36,9 +51,7 @@ impl Add for Unit {
 
     fn add(self, rhs: Self) -> Self::Output {
         // Check all keys match between self and rhs, and they have the same length
-        if self.dimension.keys().all(|k| rhs.dimension.contains_key(k))
-            && self.dimension.len() == rhs.dimension.len()
-        {
+        if self.unit.keys().all(|k| rhs.unit.contains_key(k)) && self.unit.len() == rhs.unit.len() {
             self
         } else {
             panic!("Can't subtract rhs: {:#?} from lhs: {:#?}", rhs, self)
@@ -51,9 +64,7 @@ impl Sub for Unit {
 
     fn sub(self, rhs: Self) -> Self::Output {
         // Check all keys match between self and rhs, and they have the same length
-        if self.dimension.keys().all(|k| rhs.dimension.contains_key(k))
-            && self.dimension.len() == rhs.dimension.len()
-        {
+        if self.unit.keys().all(|k| rhs.unit.contains_key(k)) && self.unit.len() == rhs.unit.len() {
             self
         } else {
             panic!("Can't subtract rhs: {:#?} from lhs: {:#?}", rhs, self)
@@ -111,7 +122,7 @@ pub enum DimensionIdentity {
     Currency,
 }
 
-#[derive(Debug, Clone)]
+#[derive(PartialEq, Eq, Debug, Clone)]
 pub struct Dimension {
     dimension: HashMap<DimensionIdentity, i64>,
 }
