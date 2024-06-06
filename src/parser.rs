@@ -1,4 +1,10 @@
 extern crate nom;
+extern crate uom;
+
+use uom::si::f64::*;
+use uom::si::information::{bit, Information};
+use uom::si::length::{kilometer, meter, Length};
+use uom::si::time::{day, hour, second, Time};
 
 use nom::branch::alt;
 use nom::bytes::complete::tag;
@@ -11,8 +17,8 @@ use nom::IResult;
 
 use super::types::*;
 
-fn parse_length(input: &str) -> IResult<&str, Unit> {
-    println!("reached parse_length {}", input.clone());
+fn parse_unit(input: &str) -> IResult<&str, Unit> {
+    println!("reached parse_unit {}", input.clone());
 
     // TODO: none of this is very nice, differentiate unit families better
 
@@ -21,24 +27,12 @@ fn parse_length(input: &str) -> IResult<&str, Unit> {
     let (input, _) = tag("[")(input)?;
     // println!("  parsing unit {}", input.clone());
     let (input, unit_alias) = alt((
-        tag("none"),
-        alt((tag("days"), tag("day"), tag("d"))),
-        tag("hours"),
-        tag("hour"),
-        tag("h"),
-        tag("minutes"),
-        tag("minute"),
-        tag("min"),
-        tag("seconds"),
-        tag("second"),
-        tag("s"),
         tag("meters"),
         tag("meter"),
         tag("m"), // longest to shortest!!
         tag("kilometers"),
         tag("kilometer"),
         tag("km"),
-        alt((tag("USD"), tag("$"), tag("GBP"), tag("£"))),
     ))(input)?;
     println!("  parsed unit {}", unit_alias.clone());
     let (input, _) = tag("^")(input)?;
@@ -54,66 +48,19 @@ fn parse_length(input: &str) -> IResult<&str, Unit> {
     // println!("  parsing unit {}", input.clone());
 
     // TODO: We can also have a parser for each unit
+    // TODO: turn these into quantities in the interpreter
     let dimension = match unit_alias {
-        "none" => Unit {
-            unit: UnitIdentity::None(1.0),
-            quantity: Quantity::None(1),
-        },
-        // Time has a constant power of 1
-        "days" | "day" | "d" => Unit {
-            unit: UnitIdentity::Day(86400.0), // conversion_factor to base unit, Second in this case
-            quantity: Quantity::Time(1),      // Power of the quantity, so this is Days^1
-        },
-        "hours" | "hour" | "hr" => Unit {
-            unit: UnitIdentity::Hour(3600.0),
-            quantity: Quantity::Time(1),
-        },
-        "minutes" | "minute" | "min" => Unit {
-            unit: UnitIdentity::Minute(60.0),
-            quantity: Quantity::Time(1),
-        },
-        "seconds" | "second" | "s" => Unit {
-            unit: UnitIdentity::Second(1.0),
-            quantity: Quantity::Time(1),
-        },
         "meters" | "meter" | "m" => match power {
-            1 => Unit {
-                unit: UnitIdentity::Meter(1.0),
-                quantity: Quantity::Length(power),
-            },
-            2 => Unit {
-                unit: UnitIdentity::SquareMeter(1.0),
-                quantity: Quantity::Length(power),
-            },
-            3 => Unit {
-                unit: UnitIdentity::Kilometer(1.0),
-                quantity: Quantity::Length(power),
-            },
+            1 => Unit::Meter(1),
+            2 => Unit::Meter(2),
+            3 => Unit::Meter(3),
             _ => todo!("other dimensions in meters"),
         },
         "kilometers" | "kilometer" | "km" => match power {
-            1 => Unit {
-                unit: UnitIdentity::Kilometer(1000.0),
-                quantity: Quantity::Length(power),
-            },
-            2 => Unit {
-                unit: UnitIdentity::SquareKilometer(1000000.0),
-                quantity: Quantity::Length(power),
-            },
-            3 => Unit {
-                unit: UnitIdentity::CubicKilometer(1000000000.0),
-                quantity: Quantity::Length(power),
-            },
-            _ => todo!("other dimensions in meters"),
-        },
-        // Currency has a constant power of 1
-        "USD" | "$" => Unit {
-            unit: UnitIdentity::USD(1.0), // USD is the base unit
-            quantity: Quantity::Currency(1),
-        },
-        "GBP" | "£" => Unit {
-            unit: UnitIdentity::Day(1.2),
-            quantity: Quantity::Currency(1),
+            1 => Unit::Kilometer(1),
+            2 => Unit::Kilometer(2),
+            3 => Unit::Kilometer(3),
+            _ => todo!("other dimensions in kilometers"),
         },
         _ => panic!("Unsupported unit alias {}", unit_alias),
     };
@@ -124,8 +71,8 @@ fn parse_length(input: &str) -> IResult<&str, Unit> {
 /// Switch on dimensions
 fn parse_dimension(input: &str) -> IResult<&str, Unit> {
     println!("reached parse_dimension {}", input.clone());
-    let (input, dimension) = parse_length(input)?;
-    // let (input, dimension) = delimited(tag("["), alt((parse_length, parse_volume)), tag("]"))(input)?;
+    let (input, dimension) = parse_unit(input)?;
+    // let (input, dimension) = delimited(tag("["), alt((parse_unit, parse_volume)), tag("]"))(input)?;
 
     Ok((input, dimension))
 }

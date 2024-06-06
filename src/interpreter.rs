@@ -66,11 +66,9 @@ impl Interpreter for Memory {
             AstNode::Name(name) => self.memory[&name].clone(),
             AstNode::Double { value, unit } => DimensionedValue {
                 value: value,
-                unit: unit,
             },
             AstNode::Vector { value, unit } => DimensionedValue {
                 value: value,
-                unit: unit,
             },
             AstNode::Expression {
                 operation,
@@ -91,11 +89,9 @@ impl Interpreter for Memory {
             AstNode::Name(name) => self.memory[&name].clone(),
             AstNode::Double { value, unit } => DimensionedValue {
                 value: value,
-                unit: unit,
             },
             AstNode::Vector { value, unit } => DimensionedValue {
                 value: value,
-                unit: unit,
             },
             AstNode::Expression {
                 operation,
@@ -109,11 +105,9 @@ impl Interpreter for Memory {
             AstNode::Name(name) => self.memory[&name].clone(),
             AstNode::Double { value, unit } => DimensionedValue {
                 value: value,
-                unit: unit,
             },
             AstNode::Vector { value, unit } => DimensionedValue {
                 value: value,
-                unit: unit,
             },
             AstNode::Expression {
                 operation,
