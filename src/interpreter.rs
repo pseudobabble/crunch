@@ -7,19 +7,19 @@ use std::fmt::Debug;
 #[derive(Debug, Clone)]
 pub struct Memory {
     instructions: Vec<Vec<AstNode>>,
-    pub memory: HashMap<String, DimensionedValue>,
+    pub memory: HashMap<String, Value>,
 }
 
 pub trait Interpreter {
     fn new(instructions: Vec<Vec<AstNode>>) -> Self;
     fn run(&mut self) -> ();
-    fn evaluate(&self, expression: AstNode) -> DimensionedValue;
+    fn evaluate(&self, expression: AstNode) -> Value;
     fn evaluate_expression(
         &self,
         operation: BinaryOperation,
         lhs: Box<AstNode>,
         rhs: Box<AstNode>,
-    ) -> DimensionedValue;
+    ) -> Value;
 }
 
 impl Interpreter for Memory {
@@ -61,15 +61,11 @@ impl Interpreter for Memory {
         }
     }
 
-    fn evaluate(&self, expression: AstNode) -> DimensionedValue {
+    fn evaluate(&self, expression: AstNode) -> Value {
         match expression {
             AstNode::Name(name) => self.memory[&name].clone(),
-            AstNode::Double { value, unit } => DimensionedValue {
-                value: value,
-            },
-            AstNode::Vector { value, unit } => DimensionedValue {
-                value: value,
-            },
+            AstNode::Double { value, unit } => Value::new(value, unit),
+            AstNode::Vector { value, unit } => Value::new_vec(value, unit),
             AstNode::Expression {
                 operation,
                 lhs,
@@ -84,15 +80,11 @@ impl Interpreter for Memory {
         operation: BinaryOperation,
         lhs: Box<AstNode>,
         rhs: Box<AstNode>,
-    ) -> DimensionedValue {
+    ) -> Value {
         let lhs_value = match *lhs {
             AstNode::Name(name) => self.memory[&name].clone(),
-            AstNode::Double { value, unit } => DimensionedValue {
-                value: value,
-            },
-            AstNode::Vector { value, unit } => DimensionedValue {
-                value: value,
-            },
+            AstNode::Double { value, unit } => Value::new(value, unit),
+            AstNode::Vector { value, unit } => Value::new_vec(value, unit),
             AstNode::Expression {
                 operation,
                 lhs,
@@ -103,12 +95,8 @@ impl Interpreter for Memory {
 
         let rhs_value = match *rhs {
             AstNode::Name(name) => self.memory[&name].clone(),
-            AstNode::Double { value, unit } => DimensionedValue {
-                value: value,
-            },
-            AstNode::Vector { value, unit } => DimensionedValue {
-                value: value,
-            },
+            AstNode::Double { value, unit } => Value::new(value, unit),
+            AstNode::Vector { value, unit } => Value::new_vec(value, unit),
             AstNode::Expression {
                 operation,
                 lhs,

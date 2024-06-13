@@ -1,10 +1,8 @@
 extern crate nom;
 extern crate uom;
 
-use uom::si::f64::*;
-use uom::si::information::{bit, Information};
-use uom::si::length::{kilometer, meter, Length};
-use uom::si::time::{day, hour, second, Time};
+use std::collections::HashMap;
+use std::ops::{Add, Div, Mul, Sub};
 
 use nom::branch::alt;
 use nom::bytes::complete::tag;
@@ -14,6 +12,10 @@ use nom::multi::{many0, many1};
 use nom::number::complete::double;
 use nom::sequence::{delimited, preceded, terminated};
 use nom::IResult;
+
+use uom::si::area::{square_kilometer, square_meter};
+use uom::si::f64::*;
+use uom::si::length::{kilometer, meter};
 
 use super::types::*;
 
@@ -51,15 +53,13 @@ fn parse_unit(input: &str) -> IResult<&str, Unit> {
     // TODO: turn these into quantities in the interpreter
     let dimension = match unit_alias {
         "meters" | "meter" | "m" => match power {
-            1 => Unit::Meter(1),
-            2 => Unit::Meter(2),
-            3 => Unit::Meter(3),
+            1 => Unit::Meter,
+            // 2 => Unit::SquareMeter,
             _ => todo!("other dimensions in meters"),
         },
         "kilometers" | "kilometer" | "km" => match power {
-            1 => Unit::Kilometer(1),
-            2 => Unit::Kilometer(2),
-            3 => Unit::Kilometer(3),
+            1 => Unit::Kilometer,
+            //2 => Unit::SquareKilometer,
             _ => todo!("other dimensions in kilometers"),
         },
         _ => panic!("Unsupported unit alias {}", unit_alias),
@@ -86,7 +86,7 @@ fn parse_number(number: &str) -> IResult<&str, AstNode> {
     Ok((
         input,
         AstNode::Double {
-            value: Value::Float(number),
+            value: number as f64,
             unit: unit,
         },
     ))
@@ -108,7 +108,7 @@ fn parse_vector(input: &str) -> IResult<&str, AstNode> {
     Ok((
         input,
         AstNode::Vector {
-            value: Value::Vec(vector),
+            value: vector,
             unit: unit,
         },
     ))
